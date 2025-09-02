@@ -1,13 +1,13 @@
 {
-    "name": "kilik/table",
-    "description": "Symfony Ajax Datagrid Bundle for doctrine entities",
+  "name": "prolaser/tablebundle",
+  "description": "Private fork from https://github.com/KilikFr/TableBundle",
     "keywords": ["symfony","jquery","table"],
-    "homepage": "https://github.com/KilikFr/TableBundle",
+  "homepage": "https://github.com/ProlaserGroup/ProlaserTableBundle",
     "license": "MIT",
     "type": "symfony-bundle",
     "authors": [
         {
-            "name": "Michel Naud",
+          "name": "Thomas Giraudeau",
             "email": "mitch@kilik.fr",
             "role": "Author"
         }
@@ -20,6 +20,9 @@
         "doctrine/doctrine-bundle": "~1.0||~2.0",
         "symfony/form": "^4.0||^5.0||^6.0||^7.0"
     },
+  "replace": {
+    "kilik/table": "self.version"
+  },
     "autoload": {
         "psr-4": {
             "Kilik\\TableBundle\\": "src"

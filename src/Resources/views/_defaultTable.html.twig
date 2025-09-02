@@ -24,10 +24,14 @@
         </div>
     </div>
     <div class="panel-body table-responsive">
-        {% block tableLoader %}<div id="{{ table.id }}-table-loading-container" class="table-loading-container"><div class="table-loader"><div></div><div></div><div></div><div></div></div></div>{% endblock tableLoader %}
         {% block tableMetadata %}
             <div style="display:none;width:0; height:0;" data-kiliktable-id="{{ table.id }}" data-kiliktable-path="{{ table.path }}">{{ table.options | json_encode | raw }}</div>
         {% endblock tableMetadata %}
+
+        <div id="{{ table.id }}_placeholder_template" style="display: none">
+            {% include "@KilikTable/_placeholderLoader.html.twig" %}
+        </div>
+
         <table class="table table-hover table-striped table-bordered" id="{{ table.id }}">
             <thead>
                 {% block tableHead %}
@@ -55,7 +59,9 @@
                     {% endif %}
                 {% endblock tableHead %}
             </thead>
-            <tbody id="{{ table.bodyId }}">
+
+            <tbody id="{{ table.bodyId }}" data-placeholder-count="{{ table.rowsPerPage }}"
+                   data-column-count="{{ table.columns|length }}">
                 {% block tableBody %}
                     {% if tableRenderBody is defined %}
                         {% for row in rows %}

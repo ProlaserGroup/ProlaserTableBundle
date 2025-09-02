@@ -1,0 +1,21 @@
+{# {% set totalColumn = table.columns|length %} #}
+
+{# {% if table.massActions is defined and table.massActions is not empty %} #}
+{#    {% set totalColumn = totalColumn + 1 %} #}
+{# {% endif %} #}
+
+{# {% for i in 1..table.rowsPerPage %} #}
+{#    <tr class="placeholder-row {% if tableRenderBody is defined %}placeholder-row-hidden{% endif %}" > #}
+{#        {% for i in 1..totalColumn %} #}
+{#            <td> #}
+{#                <div class="placeholder-glow"> #}
+{#                    <span class="placeholder rounded col-8"></span> #}
+{#                </div> #}
+{#            </td> #}
+{#        {% endfor %} #}
+{#    </tr> #}
+{# {% endfor %} #}
+
+<div class="placeholder-glow">
+    <span class="placeholder rounded col-8"></span>
+</div>

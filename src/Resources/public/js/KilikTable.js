@@ -414,12 +414,79 @@ function KilikTable(id, path, options) {
     }
 
     /**
+     * Show placeholders in table body
+     */
+    this.showPlaceholders = function () {
+        const tbody = document.getElementById(this.id + '_body');
+        const placeholderTemplate = document.getElementById(this.id + '_placeholder_template');
+
+        // Check if template exists
+        if (placeholderTemplate === null) {
+            console.warn('Placeholder template not found');
+            return;
+        }
+
+        // Clear existing content
+        tbody.innerHTML = '';
+
+        // Get the HTML for a single placeholder cell
+        const singlePlaceholderHtml = placeholderTemplate.innerHTML;
+
+        // Calculate total columns (including mass actions column if present)
+        const totalColumn = this.getTotalColumnCount();
+
+        // Check if there's a mass actions column
+        const table = document.getElementById(this.id);
+        const firstHeaderCell = table.querySelector('thead tr:first-child th:first-child');
+        const hasMassActions = firstHeaderCell && (
+            firstHeaderCell.classList.contains('mass-action') ||
+            firstHeaderCell.querySelector('input[type="checkbox"]') !== null
+        );
+
+        // Create placeholder rows
+        let placeholderRows = '';
+        for (let i = 0; i < this.rowsPerPage; i++) {
+            placeholderRows += '<tr class="placeholder-row">';
+            for (let j = 0; j < totalColumn; j++) {
+                if (j === 0 && hasMassActions) {
+                    // First column = mass actions: disabled checkbox
+                    placeholderRows += '<td><input type="checkbox" disabled></td>';
+                } else {
+                    // Other columns: normal placeholder
+                    placeholderRows += '<td>' + singlePlaceholderHtml + '</td>';
+                }
+            }
+            placeholderRows += '</tr>';
+        }
+
+        // Insert placeholder rows into tbody
+        tbody.innerHTML = placeholderRows;
+    };
+    /**
+     * Hide placeholders from table body
+     */
+    this.hidePlaceholders = function () {
+        const tbody = document.getElementById(this.id + '_body');
+        const placeholderRows = tbody.querySelectorAll('.placeholder-row');
+
+        // Delete all placeholder rows
+        placeholderRows.forEach(row => row.remove());
+    };
+
+    /**
+     * Get total column count (including mass actions column if present)
+     */
+    this.getTotalColumnCount = function () {
+        const $table = $("#" + this.id);
+        return $table.find('thead tr:first th').length;
+    };
+
+    /**
      * Reload list from server side
      */
     this.doReload = function () {
         var table = this;
-        var $loader = $('#'+id+'-table-loading-container');
-        $loader.show();
+        this.showPlaceholders();
         var postData = $("form[name=" + id + "_form]").serializeArray();
         postData.push({"name": "page", "value": table.page,});
         postData.push({"name": "rowsPerPage", "value": table.rowsPerPage,});
@@ -467,9 +534,9 @@ function KilikTable(id, path, options) {
             table.initMassActions();
             // callback
             table.afterReload(dataRaw);
-            $loader.hide();
+            table.hidePlaceholders();
         }).fail(function (jqXHR, textStatus, errorThrown) {
-            $loader.hide();
+            table.hidePlaceholders();
         });
     };
 

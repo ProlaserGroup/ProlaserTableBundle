@@ -29,7 +29,7 @@
         {% endblock tableMetadata %}
 
         <div id="{{ table.id }}_placeholder_template" style="display: none">
-            {% include "@KilikTable/_placeholderLoader.html.twig" %}
+            {% include "@KilikTable/_placeholderLoader.html.twig" ignore missing %}
         </div>
 
         <table class="table table-hover table-striped table-bordered" id="{{ table.id }}">

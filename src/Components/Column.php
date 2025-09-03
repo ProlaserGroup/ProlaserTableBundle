@@ -649,15 +649,18 @@ class Column
             switch ($this->getDisplayFormat()) {
                 case static::FORMAT_DATE:
                     $formatParams = $this->getDisplayFormatParams();
+
                     if (is_null($formatParams)) {
                         $formatParams = 'Y-m-d H:i:s';
                     }
-                    if (!is_null($rawValue) && is_object($rawValue) && $rawValue instanceof \DateTimeInterface) {
+
+                    if ($rawValue instanceof \DateTimeInterface) {
                         return $rawValue->format($formatParams);
+                    } elseif (is_string($rawValue) && strtotime($rawValue) !== false) {
+                        return date($formatParams, strtotime($rawValue));
                     } else {
                         return '';
                     }
-                    break;
                 case static::FORMAT_TEXT:
                 default:
                     if (is_array($rawValue)) {
@@ -665,7 +668,6 @@ class Column
                     } else {
                         return $rawValue;
                     }
-                    break;
             }
         }
     }

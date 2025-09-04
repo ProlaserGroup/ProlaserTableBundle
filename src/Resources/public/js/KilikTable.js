@@ -75,6 +75,7 @@ function KilikTable(id, path, options) {
 
         // bouton pour vider les filtres
         $buttonClearFilters.click(function () {
+            $('#btnGroupDropFilter').addClass("d-none");
             table.clearFilters();
         });
 
@@ -414,7 +415,7 @@ function KilikTable(id, path, options) {
     }
 
     /**
-     * Show placeholders in table body
+     * Show placeholders in the table body
      */
     this.showPlaceholders = function () {
         const tbody = document.getElementById(this.id + '_body');
@@ -463,7 +464,7 @@ function KilikTable(id, path, options) {
         tbody.innerHTML = placeholderRows;
     };
     /**
-     * Hide placeholders from table body
+     * Hide placeholders from the table body
      */
     this.hidePlaceholders = function () {
         const tbody = document.getElementById(this.id + '_body');
@@ -482,7 +483,7 @@ function KilikTable(id, path, options) {
     };
 
     /**
-     * Reload list from server side
+     * Reload list from the server side
      */
     this.doReload = function () {
         var table = this;
@@ -504,6 +505,7 @@ function KilikTable(id, path, options) {
         if (this.xhr) {
             this.xhr.abort();
         }
+
         // and send the query
         this.xhr = $.post(this.path, postData,
             function (dataRaw) {
@@ -536,7 +538,10 @@ function KilikTable(id, path, options) {
             table.afterReload(dataRaw);
             table.hidePlaceholders();
         }).fail(function (jqXHR, textStatus, errorThrown) {
-            table.hidePlaceholders();
+            // Only remove placeholders if it's not an abort (to avoid hiding them when a new request starts)
+            if (textStatus !== 'abort') {
+                table.hidePlaceholders();
+            }
         });
     };
 
@@ -610,7 +615,7 @@ function KilikTable(id, path, options) {
 /**
  * KilikTable (Based on Bootstrap 4 and FontAwesome)
  *
- * @param string id : div id (to diplay table)
+ * @param string id: div id (to diplay table)
  * @param string path : path to refresh table
  * @param array : options
  */

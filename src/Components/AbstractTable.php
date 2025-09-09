@@ -47,6 +47,13 @@ abstract class AbstractTable implements TableInterface
     protected $rowsPerPageOptions = [5, 10, 20, 50, 100];
 
     /**
+     * DefaultSort.
+     *
+     * @var array
+     */
+    private array $defaultSort = [];
+
+    /**
      * Template for table and lines.
      *
      * @var string
@@ -268,6 +275,29 @@ abstract class AbstractTable implements TableInterface
     public function getRowsPerPage()
     {
         return $this->rowsPerPage;
+    }
+
+    /**
+     * Get default sort.
+     *
+     * @return array
+     */
+    public function getDefaultSort(): array
+    {
+        return $this->defaultSort;
+    }
+
+    /**
+     * Set default sort.
+     *
+     * @param array $defaultSort
+     *
+     * @return AbstractTable
+     */
+    public function setDefaultSort(array $defaultSort): AbstractTable
+    {
+        $this->defaultSort = $defaultSort;
+        return $this;
     }
 
     /**

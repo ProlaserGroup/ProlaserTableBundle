@@ -7,6 +7,7 @@ function KilikTable(id, path, options) {
     this.id = id;
     this.path = path;
     this.rowsPerPage = 10;
+    this.defaultSort = [];
     this.page = 1;
     this.totalRows = 0;
     this.totalFilteredRows = 0;
@@ -41,12 +42,15 @@ function KilikTable(id, path, options) {
     }
 
     this.applyOptions = function (options) {
+        console.log(options);
+
         var allowedOptions = [
             "sortColumnClassSortable",
             "sortColumnClassSorted",
             "sortColumnClassSortedReverse",
             "askForReloadDelay",
             "rowsPerPage",
+            "defaultSort",
             "defaultHiddenColumns",
             "skipLoadFromLocalStorage",
             "skipLoadFilterFromLocalStorage"

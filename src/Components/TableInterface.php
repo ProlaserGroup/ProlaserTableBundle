@@ -93,6 +93,22 @@ interface TableInterface
     public function setRowsPerPageOptions($rowsPerPageOptions);
 
     /**
+     * Get default sort.
+     *
+     * @return array
+     */
+    public function getDefaultSort();
+
+    /**
+     * Set default sort.
+     *
+     * @param array $defaultSort
+     *
+     * @return static
+     */
+    public function setDefaultSort(array $defaultSort);
+
+    /**
      * Get rows per page options (selectable).
      *
      * @return int

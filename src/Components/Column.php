@@ -45,7 +45,7 @@ class Column
     private $sortReverse = [];
 
     /**
-     * Wich type (for default display transco).
+     * Which type (for default display transco).
      *
      * @var string
      */

@@ -61,6 +61,14 @@ abstract class AbstractTableService implements TableServiceInterface
             );
         }
 
+        // Append default sort column if exists
+        if ([] !== $table->getDefaultSort()) {
+            $form->add('defaultSort', \Symfony\Component\Form\Extension\Core\Type\HiddenType::class, array(
+                'mapped' => false,
+                'data' => json_encode($table->getDefaultSort()),
+            ));
+        }
+
         // append special inputs (used for export csv for exemple)
         $form->add('sortColumn', \Symfony\Component\Form\Extension\Core\Type\HiddenType::class, array('required' => false));
         $form->add('sortReverse', \Symfony\Component\Form\Extension\Core\Type\HiddenType::class, array('required' => false));

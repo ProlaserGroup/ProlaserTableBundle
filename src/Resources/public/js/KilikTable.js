@@ -56,7 +56,7 @@ function KilikTable(id, path, options) {
             "skipLoadFilterFromLocalStorage"
         ]
         for (optionKey in options) {
-            if(allowedOptions.indexOf(optionKey) != -1) {
+            if (allowedOptions.indexOf(optionKey) !== -1) {
                 this[optionKey] = options[optionKey];
             }
         }
@@ -117,7 +117,7 @@ function KilikTable(id, path, options) {
             table.askForReload();
         }).keydown(function (e) {
             // prevent reload on press enter (for configuration dropdown)
-            if (e.keyCode == 13) {
+            if (e.keyCode === 13) {
                 return false;
             }
         });
@@ -133,7 +133,7 @@ function KilikTable(id, path, options) {
             var a = $(this);
             var sortColumn = a.attr("data-sort-column");
             // if same column, inverse order
-            if (sortColumn == table.sortColumn) {
+            if (sortColumn === table.sortColumn) {
                 table.sortReverse = !table.sortReverse;
             } else {
                 table.sortColumn = sortColumn;
@@ -186,7 +186,7 @@ function KilikTable(id, path, options) {
             pColumn.removeClass(table.sortColumnClassSortedReverse);
             pColumn.removeClass(table.sortColumnClassSortable);
             // remove sorted, but keep sortable
-            if (pSortColumn != table.sortColumn) {
+            if (pSortColumn !== table.sortColumn) {
                 pColumn.addClass(table.sortColumnClassSortable);
             } else {
                 if (table.sortReverse) {
@@ -204,8 +204,10 @@ function KilikTable(id, path, options) {
     this.applyHideColumnsForm = function () {
         var table = this;
         var $table = $("#" + id);
+        var input = $("*[data-setup='" + id + "']:input");
+
         // check all columns
-        $("*[data-setup='" + id + "']:input").prop("checked", true);
+        input.prop("checked", true);
         // uncheck hidden columns
         for (key in this.hiddenColumns) {
             var hiddenColumn = this.hiddenColumns[key];
@@ -216,7 +218,7 @@ function KilikTable(id, path, options) {
             $table.find("td[data-column='" + hiddenColumn + "']").hide();
         }
         // bind change
-        $("*[data-setup='" + id + "']:input").change(function () {
+        input.change(function () {
             var input = $(this);
             var checked = input.prop("checked");
             var name = input.attr("data-column");

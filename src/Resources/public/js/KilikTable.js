@@ -17,6 +17,12 @@ function KilikTable(id, path, options) {
     this.askForReloadDelay = 250;
     this.askForReloadTimer = null;
 
+    // Nouvelles propriétés pour le rechargement automatique
+    this.autoReloadOnVisibility = true; // Activate/disable auto-reload on window focus
+    this.autoReloadTimeout = 300000; // Default delay for auto-reload (5 minutes)
+    this.lastReloadTime = Date.now(); // Last reload timestamp
+    this.visibilityChangeHandler = null; // Reference to the visibility change event handler
+
     // apply styles on sorted columns
     this.sortColumnClassSortable = "glyphicon-sort";
     this.sortColumnClassSorted = "glyphicon-sort-by-alphabet";
@@ -53,7 +59,9 @@ function KilikTable(id, path, options) {
             "defaultSort",
             "defaultHiddenColumns",
             "skipLoadFromLocalStorage",
-            "skipLoadFilterFromLocalStorage"
+            "skipLoadFilterFromLocalStorage",
+            "autoReloadOnFocus",
+            "autoReloadDelay"
         ]
         for (optionKey in options) {
             if (allowedOptions.indexOf(optionKey) !== -1) {
@@ -163,12 +171,15 @@ function KilikTable(id, path, options) {
         // apply hide columns form
         this.applyHideColumnsForm();
 
-        // on actualise maintenant
+        // we load the first time
         this.doReload();
 
         $buttonCheckAll.on('click', function () {
             table.checkAll($(this).prop('checked'));
         });
+
+        // init auto-reload
+        this.initAutoReload();
 
         $table.trigger('kilik:init:end', [table]);
     };
@@ -541,6 +552,7 @@ function KilikTable(id, path, options) {
         ).done(function (dataRaw) {
             table.initMassActions();
             // callback
+            table.updateLastReloadTime();
             table.afterReload(dataRaw);
             table.hidePlaceholders();
         }).fail(function (jqXHR, textStatus, errorThrown) {
@@ -550,6 +562,71 @@ function KilikTable(id, path, options) {
             }
         });
     };
+
+    /**
+     * Initializes the auto-reload functionality for the application or module.
+     * This function sets up the necessary configuration and logic to enable automatic
+     * reloading of data, components, or the entire application based on specified criteria.
+     *
+     * Key functionalities may include:
+     * - Setting up timers or intervals for periodic reloads.
+     * - Listening for specific events or triggers that require a reload.
+     * - Ensuring minimal disruption to user experience during the reload process.
+     *
+     * This method should be invoked during the setup phase or when auto-reload functionality
+     * needs to be activated.
+     */
+    this.initAutoReload = function () {
+        var table = this;
+
+        if (!this.autoReloadOnVisibility) {
+            return;
+        }
+
+        // Save the last reload time
+        this.lastReloadTime = Date.now();
+
+        // Manage auto-reload on window focus
+        this.visibilityChangeHandler = function () {
+            if (!document.hidden) {
+                // The page has become visible
+                var now = Date.now();
+                var timeSinceLastReload = now - table.lastReloadTime;
+
+                if (timeSinceLastReload > table.autoReloadTimeout) {
+                    console.log('Auto-reloading table after ' + (timeSinceLastReload / 1000) + ' seconds');
+                    table.doReload();
+                }
+            }
+        };
+
+        // Listen for visibility change events
+        document.addEventListener('visibilitychange', this.visibilityChangeHandler);
+    };
+
+    /**
+     * Stops the automatic reload functionality.
+     *
+     * This method is intended to halt any automatic content
+     * or data refreshing mechanism that was previously enabled.
+     * Once called, automatic reload cycles will no longer occur
+     * unless manually restarted elsewhere in the program.
+     */
+    this.destroyAutoReload = function () {
+        if (this.visibilityChangeHandler) {
+            document.removeEventListener('visibilitychange', this.visibilityChangeHandler);
+            this.visibilityChangeHandler = null;
+        }
+    };
+
+    /**
+     * Updates the record of the last reload time.
+     * This method sets the value indicating the most recent time the reload occurred.
+     */
+    this.updateLastReloadTime = function () {
+        this.lastReloadTime = Date.now();
+    };
+
 
     /**
      * Callback after reload

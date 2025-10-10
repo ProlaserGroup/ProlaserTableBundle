@@ -1,39 +1,44 @@
 {
   "name": "prolaser/tablebundle",
+  "version": "1.0.0",
   "description": "Private fork from https://github.com/KilikFr/TableBundle",
-    "keywords": ["symfony","jquery","table"],
+  "keywords": [
+    "symfony",
+    "jquery",
+    "table"
+  ],
   "homepage": "https://github.com/ProlaserGroup/ProlaserTableBundle",
-    "license": "MIT",
-    "type": "symfony-bundle",
-    "authors": [
-        {
-          "name": "Thomas Giraudeau",
-            "email": "mitch@kilik.fr",
-            "role": "Author"
-        }
-    ],
-    "require": {
-        "php": "^7.4||^8.0",
-        "ext-json": "*",
-        "twig/twig": "^1.0||^2.0||^3.0",
-        "doctrine/orm": "^2.5|^3.2",
-        "doctrine/doctrine-bundle": "~1.0||~2.0",
-        "symfony/form": "^4.0||^5.0||^6.0||^7.0"
-    },
+  "license": "MIT",
+  "type": "symfony-bundle",
+  "authors": [
+    {
+      "name": "Thomas Giraudeau",
+      "email": "mitch@kilik.fr",
+      "role": "Author"
+    }
+  ],
+  "require": {
+    "php": "^7.4||^8.0",
+    "ext-json": "*",
+    "twig/twig": "^1.0||^2.0||^3.0",
+    "doctrine/orm": "^2.5|^3.2",
+    "doctrine/doctrine-bundle": "~1.0||~2.0",
+    "symfony/form": "^4.0||^5.0||^6.0||^7.0"
+  },
   "replace": {
     "kilik/table": "self.version"
   },
-    "autoload": {
-        "psr-4": {
-            "Kilik\\TableBundle\\": "src"
-        }
-    },
-    "require-dev": {
-        "symfony/phpunit-bridge": "^5.0||^6.0||^7.0"
-    },
-    "config": {
-        "allow-plugins": {
-            "composer/package-versions-deprecated": true
-        }
+  "autoload": {
+    "psr-4": {
+      "Kilik\\TableBundle\\": "src"
     }
+  },
+  "require-dev": {
+    "symfony/phpunit-bridge": "^5.0||^6.0||^7.0"
+  },
+  "config": {
+    "allow-plugins": {
+      "composer/package-versions-deprecated": true
+    }
+  }
 }

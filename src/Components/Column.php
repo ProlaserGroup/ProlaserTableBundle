@@ -13,8 +13,9 @@ class Column
      */
     const FORMAT_DATE = 'date';
     const FORMAT_TEXT = 'text';
+    const FORMAT_CURRENCY = 'currency';
     const FORMAT_DEFAULT = self::FORMAT_TEXT;
-    const FORMATS = [self::FORMAT_DATE, self::FORMAT_TEXT];
+    const FORMATS = [self::FORMAT_DATE, self::FORMAT_TEXT, self::FORMAT_CURRENCY];
 
     /**
      * filter on this column ?
@@ -661,6 +662,13 @@ class Column
                     } else {
                         return '';
                     }
+                case static::FORMAT_CURRENCY:
+                    $formatParams = $this->getDisplayFormatParams();
+                    return match ($formatParams) {
+                        'EUR' => number_format($rawValue, 2, ',') . ' €',
+                        'USD' => number_format($rawValue, 2) . ' $',
+                        default => number_format($rawValue, 2),
+                    };
                 case static::FORMAT_TEXT:
                 default:
                     if (is_array($rawValue)) {

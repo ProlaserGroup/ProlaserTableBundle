@@ -2,14 +2,13 @@
 
 namespace Kilik\TableBundle\Services;
 
-use Doctrine\ORM\AbstractQuery;
+use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
+use Doctrine\ORM\Tools\Pagination\Paginator;
+use Kilik\TableBundle\Components\Filter;
+use Kilik\TableBundle\Components\Table;
 use Kilik\TableBundle\Components\TableInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Kilik\TableBundle\Components\Table;
-use Kilik\TableBundle\Components\Filter;
-use Doctrine\ORM\Query;
-use Doctrine\ORM\Tools\Pagination\Paginator;
 
 class TableService extends AbstractTableService
 {
@@ -364,7 +363,7 @@ class TableService extends AbstractTableService
      * @throws \Doctrine\ORM\NoResultException
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
-    protected function countRows(QueryBuilder $qb, string $identifiers = null)
+    protected function countRows(QueryBuilder $qb, ?string $identifiers = null)
     {
         switch (true) {
             case $qb->getQuery()->hasHint(Query::HINT_CUSTOM_OUTPUT_WALKER) && is_null($identifiers):

@@ -97,6 +97,14 @@ class Filter
     private $field;
 
     /**
+     * Field types for multi-field search (positional or keyed by field name).
+     * Supported values: 'string' (default, uses LIKE), 'integer' (uses equality).
+     *
+     * @var array
+     */
+    private array $fieldTypes = [];
+
+    /**
      * This filter is a HAVING constraint ?
      *
      * @var bool
@@ -204,6 +212,41 @@ class Filter
         }
 
         return is_array($this->field) ? $this->field : [$this->field];
+    }
+
+    /**
+     * Set field types for multi-field search.
+     * Accepts a positional array (['string', 'integer', 'string']) or a field-keyed array
+     * (['alias.field' => 'integer']). Supported types: 'string' (LIKE), 'integer' (equality).
+     *
+     * @param array $fieldTypes
+     *
+     * @return static
+     */
+    public function setFieldTypes(array $fieldTypes): static
+    {
+        $this->fieldTypes = $fieldTypes;
+
+        return $this;
+    }
+
+    /**
+     * Get field types array.
+     *
+     * @return array
+     */
+    public function getFieldTypes(): array
+    {
+        return $this->fieldTypes;
+    }
+
+    /**
+     * Get the resolved type for a given field (by index and/or name).
+     * Falls back to 'string'.
+     */
+    public function getFieldType(int $index, string $fieldName): string
+    {
+        return $this->fieldTypes[$index] ?? $this->fieldTypes[$fieldName] ?? 'string';
     }
 
     /**

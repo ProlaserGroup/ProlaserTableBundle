@@ -115,8 +115,10 @@ class TableService extends AbstractTableService
                     break;
                 default:
                 case Filter::TYPE_LIKE:
-                $sql = $this->buildMultiFieldSql($filter, '%s like :filter_' . $filter->getName());
-                    $queryBuilder->setParameter('filter_'.$filter->getName(), '%'.$formattedSearch.'%');
+                $sql = $this->buildMultiFieldSql($filter, '%s like :filter_' . $filter->getName(), $queryBuilder, $formattedSearch);
+                if ($sql) {
+                    $queryBuilder->setParameter('filter_' . $filter->getName(), '%' . $formattedSearch . '%');
+                }
                     break;
             }
 
@@ -392,17 +394,67 @@ class TableService extends AbstractTableService
      * Build a SQL condition for a filter, supporting multiple fields with OR.
      * Use %s as placeholder for the field name in $template.
      *
+     * When $queryBuilder and $rawValue are provided, integer-typed fields (via Filter::setFieldTypes)
+     * use equality instead of LIKE:
+     *  - Numeric values: field = :filter_name_int_N (integer parameter)
+     *  - Non-numeric values: the integer field is skipped entirely
+     *
+     * Returns empty string when no valid condition can be built (e.g. all fields are integer
+     * and the search value is non-numeric).
+     *
      * Example: buildMultiFieldSql($filter, '%s like :filter_name')
      * With fields ['f1','f2'] produces: (f1 like :filter_name OR f2 like :filter_name)
      */
-    private function buildMultiFieldSql(Filter $filter, string $template): string
+    protected function buildMultiFieldSql(Filter $filter, string $template, ?QueryBuilder $queryBuilder = null, string $rawValue = ''): string
     {
         $fields = $filter->getFields();
+        $fieldTypes = $filter->getFieldTypes();
+
+        if (empty($fieldTypes) || $queryBuilder === null) {
+            // Backward-compatible path: no type info, use template for all fields
+            if (count($fields) <= 1) {
+                return sprintf($template, $filter->getField());
+            }
+            $parts = array_map(fn(string $f) => sprintf($template, $f), $fields);
+
+            return '(' . implode(' OR ', $parts) . ')';
+        }
+
+        // Type-aware path
         if (count($fields) <= 1) {
+            $type = $filter->getFieldType(0, $filter->getField() ?? '');
+            if ($type === 'integer') {
+                if (!is_numeric($rawValue)) {
+                    return '';
+                }
+                $intParam = 'filter_' . $filter->getName() . '_int_0';
+                $queryBuilder->setParameter($intParam, (int)$rawValue);
+
+                return sprintf('%s = :%s', $filter->getField(), $intParam);
+            }
+
             return sprintf($template, $filter->getField());
         }
-        $parts = array_map(fn(string $f) => sprintf($template, $f), $fields);
 
-        return '(' . implode(' OR ', $parts) . ')';
+        $parts = [];
+        foreach ($fields as $i => $field) {
+            $type = $filter->getFieldType($i, $field);
+            if ($type === 'integer') {
+                if (!is_numeric($rawValue)) {
+                    continue; // non-numeric input cannot match an integer field
+                }
+                $intParam = 'filter_' . $filter->getName() . '_int_' . $i;
+                $queryBuilder->setParameter($intParam, (int)$rawValue);
+                $parts[] = "$field = :$intParam";
+            } else {
+                $parts[] = sprintf($template, $field);
+            }
+        }
+
+        if (empty($parts)) {
+            return '';
+        }
+
+        return count($parts) === 1 ? $parts[0] : '(' . implode(' OR ', $parts) . ')';
     }
 }

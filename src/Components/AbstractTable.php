@@ -503,8 +503,8 @@ abstract class AbstractTable implements TableInterface
     public function getColumnByName($name)
     {
         foreach ($this->columns as $column) {
-            // if name match
-            if ($column->getName() == $name) {
+            // if name match (including multi-name columns)
+            if (in_array($name, $column->getNames(), true)) {
                 return $column;
             }
         }

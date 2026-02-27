@@ -92,7 +92,7 @@ class Filter
     /**
      * Filter field.
      *
-     * @var string
+     * @var string|array
      */
     private $field;
 
@@ -165,9 +165,9 @@ class Filter
     }
 
     /**
-     * Set the filter field (used in a query).
+     * Set the filter field (used in a query). Accepts a string or an array of fields for multi-field OR search.
      *
-     * @param string $field
+     * @param string|array $field
      *
      * @return static
      */
@@ -179,13 +179,31 @@ class Filter
     }
 
     /**
-     * Get the filter field (user in a query).
+     * Get the filter field (returns first field if multiple are set).
      *
      * @return string
      */
     public function getField()
     {
+        if (is_array($this->field)) {
+            return $this->field[0] ?? null;
+        }
+
         return $this->field;
+    }
+
+    /**
+     * Get all filter fields as array.
+     *
+     * @return array
+     */
+    public function getFields(): array
+    {
+        if (is_null($this->field)) {
+            return [];
+        }
+
+        return is_array($this->field) ? $this->field : [$this->field];
     }
 
     /**

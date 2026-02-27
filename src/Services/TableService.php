@@ -60,35 +60,35 @@ class TableService extends AbstractTableService
                 case Filter::TYPE_LESS:
                 case Filter::TYPE_LESS_OR_EQUAL:
                 case Filter::TYPE_NOT_EQUAL:
-                    $sql = $filter->getField()." {$searchOperator} :filter_".$filter->getName();
+                $sql = $this->buildMultiFieldSql($filter, "%s {$searchOperator} :filter_" . $filter->getName());
                     $queryBuilder->setParameter('filter_'.$filter->getName(), $formattedSearch);
                     break;
                 case Filter::TYPE_EQUAL_STRICT:
-                    $sql = $filter->getField().' = :filter_'.$filter->getName();
+                    $sql = $this->buildMultiFieldSql($filter, '%s = :filter_' . $filter->getName());
                     $queryBuilder->setParameter('filter_'.$filter->getName(), $formattedSearch);
                     break;
                 case Filter::TYPE_EQUAL:
-                    $sql = $filter->getField().' like :filter_'.$filter->getName();
+                    $sql = $this->buildMultiFieldSql($filter, '%s like :filter_' . $filter->getName());
                     $queryBuilder->setParameter('filter_'.$filter->getName(), $formattedSearch);
                     break;
                 case Filter::TYPE_NOT_LIKE:
-                    $sql = $filter->getField().' not like :filter_'.$filter->getName();
+                    $sql = $this->buildMultiFieldSql($filter, '%s not like :filter_' . $filter->getName());
                     $queryBuilder->setParameter('filter_'.$filter->getName(), '%'.$formattedSearch.'%');
                     break;
                 case Filter::TYPE_NULL:
-                    $sql = $filter->getField().' IS NULL';
+                    $sql = $this->buildMultiFieldSql($filter, '%s IS NULL');
                     break;
                 case Filter::TYPE_NOT_NULL:
-                    $sql = $filter->getField().' IS NOT NULL';
+                    $sql = $this->buildMultiFieldSql($filter, '%s IS NOT NULL');
                     break;
                 case Filter::TYPE_IN:
-                    $sql = $filter->getField().' IN (:filter_'.$filter->getName().')';
+                    $sql = $this->buildMultiFieldSql($filter, '%s IN (:filter_' . $filter->getName() . ')');
                     // $formattedSearch is like 'new,cancelled'
                     $values = is_array($formattedSearch) ? $formattedSearch : explode(',', $formattedSearch);
                     $queryBuilder->setParameter('filter_'.$filter->getName(), $values);
                     break;
                 case Filter::TYPE_NOT_IN:
-                    $sql = $filter->getField().' NOT IN (:filter_'.$filter->getName().')';
+                    $sql = $this->buildMultiFieldSql($filter, '%s NOT IN (:filter_' . $filter->getName() . ')');
                     // $formattedSearch is like 'new,cancelled'
                     $values = is_array($formattedSearch) ? $formattedSearch : explode(',', $formattedSearch);
                     $queryBuilder->setParameter('filter_'.$filter->getName(), $values);
@@ -115,7 +115,7 @@ class TableService extends AbstractTableService
                     break;
                 default:
                 case Filter::TYPE_LIKE:
-                    $sql = $filter->getField().' like :filter_'.$filter->getName();
+                $sql = $this->buildMultiFieldSql($filter, '%s like :filter_' . $filter->getName());
                     $queryBuilder->setParameter('filter_'.$filter->getName(), '%'.$formattedSearch.'%');
                     break;
             }
@@ -386,5 +386,23 @@ class TableService extends AbstractTableService
 
                 return (int)$qb->getQuery()->getSingleScalarResult();
         }
+    }
+
+    /**
+     * Build a SQL condition for a filter, supporting multiple fields with OR.
+     * Use %s as placeholder for the field name in $template.
+     *
+     * Example: buildMultiFieldSql($filter, '%s like :filter_name')
+     * With fields ['f1','f2'] produces: (f1 like :filter_name OR f2 like :filter_name)
+     */
+    private function buildMultiFieldSql(Filter $filter, string $template): string
+    {
+        $fields = $filter->getFields();
+        if (count($fields) <= 1) {
+            return sprintf($template, $filter->getField());
+        }
+        $parts = array_map(fn(string $f) => sprintf($template, $f), $fields);
+
+        return '(' . implode(' OR ', $parts) . ')';
     }
 }

@@ -53,7 +53,7 @@ class Column
     private $type = self::TYPE_DEFAULT;
 
     /**
-     * @var string
+     * @var string|array|null
      */
     private $name;
 
@@ -171,7 +171,7 @@ class Column
     public function setFilter(Filter $filter = null)
     {
         if (is_null($this->name) && null !== $filter) {
-            $this->name = $filter->getName();
+            $this->name = [$filter->getName()];
         }
         $this->filter = $filter;
 
@@ -211,9 +211,9 @@ class Column
     }
 
     /**
-     * Set name (scalar field).
+     * Set name (scalar field or array of fields for multi-column display/search).
      *
-     * @param string $name
+     * @param string|array $name
      *
      * @return static
      */
@@ -225,13 +225,31 @@ class Column
     }
 
     /**
-     * Get name (scalar field).
+     * Get name (returns first name if multiple names are set).
      *
-     * @return string
+     * @return string|null
      */
     public function getName()
     {
+        if (is_array($this->name)) {
+            return $this->name[0] ?? null;
+        }
+
         return $this->name;
+    }
+
+    /**
+     * Get all names as array.
+     *
+     * @return array
+     */
+    public function getNames(): array
+    {
+        if (is_null($this->name)) {
+            return [];
+        }
+
+        return is_array($this->name) ? $this->name : [$this->name];
     }
 
     /**
@@ -633,10 +651,12 @@ class Column
      */
     public function getValue(array $row, array $rows = [])
     {
-        if (isset($row[$this->getName()])) {
-            $rawValue = $row[$this->getName()];
-        } else {
-            $rawValue = null;
+        $rawValue = null;
+        foreach ($this->getNames() as $name) {
+            if (isset($row[$name])) {
+                $rawValue = $row[$name];
+                break;
+            }
         }
         // if a callback is set
         $callback = $this->getDisplayCallback();
@@ -697,8 +717,14 @@ class Column
      */
     public function getExportValue(array $row, array $rows = [])
     {
-        if (isset($row[$this->getName()])) {
-            $rawValue = $row[$this->getName()];
+        $rawValue = null;
+        foreach ($this->getNames() as $name) {
+            if (isset($row[$name])) {
+                $rawValue = $row[$name];
+                break;
+            }
+        }
+        if ($rawValue !== null) {
             // if a callback is set
             $callback = $this->getExportCallback();
             if (!is_null($callback)) {

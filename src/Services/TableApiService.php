@@ -23,7 +23,7 @@ class TableApiService extends AbstractTableService
     {
         $filters = [];
 
-        $queryParams = $request->get($table->getFormId());
+        $queryParams = $request->query->get($table->getFormId()) ?? $request->request->get($table->getFormId());
 
         foreach ($table->getAllFilters() as $filter) {
             if (isset($queryParams[$filter->getName()])) {
@@ -49,7 +49,7 @@ class TableApiService extends AbstractTableService
     {
         $orderBy = [];
 
-        $queryParams = $request->get($table->getFormId());
+        $queryParams = $request->query->get($table->getFormId()) ?? $request->request->get($table->getFormId());
 
         if (isset($queryParams['sortColumn']) && $queryParams['sortColumn'] != '') {
             $column = $table->getColumnByName($queryParams['sortColumn']);
@@ -77,10 +77,10 @@ class TableApiService extends AbstractTableService
     public function getRows(TableInterface $table, Request $request, $paginate = true, $getObjects = true)
     {
         /* @var ApiTable $table */
-        $table->setRowsPerPage($request->get('rowsPerPage', 10));
-        $table->setPage($request->get('page', 1));
+        $table->setRowsPerPage($request->query->get('rowsPerPage', 10) ?? $request->request->get('rowsPerPage', 10));
+        $table->setPage($request->query->get('page', 1) ?? $request->request->get('page', 1));
 
-        foreach ($request->get('hiddenColumns', []) as $hiddenColumnName => $notUsed) {
+        foreach ($request->query->all('hiddenColumns') ?: $request->request->all('hiddenColumns') as $hiddenColumnName => $notUsed) {
             $column = $table->getColumnByName($hiddenColumnName);
             if (!is_null($column)) {
                 $column->setHidden(true);

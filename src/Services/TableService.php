@@ -21,7 +21,7 @@ class TableService extends AbstractTableService
      */
     private function addSearch(Table $table, Request $request, QueryBuilder $queryBuilder)
     {
-        $queryParams = $request->get($table->getFormId());
+        $queryParams = $request->query->all($table->getFormId()) ?: $request->request->all($table->getFormId()) ?: [];
 
         foreach ($table->getAllFilters() as $filter) {
             if (!isset($queryParams[$filter->getName()])) {
@@ -169,10 +169,10 @@ class TableService extends AbstractTableService
      */
     public function getRows(TableInterface $table, Request $request, $paginate = true, $getObjects = true)
     {
-        $table->setRowsPerPage($request->get('rowsPerPage', 10));
-        $table->setPage($request->get('page', 1));
+        $table->setRowsPerPage($request->request->get('rowsPerPage') ?? $request->query->get('rowsPerPage') ?? 10);
+        $table->setPage($request->request->get('page') ?? $request->query->get('page') ?? 1);
 
-        foreach ($request->get('hiddenColumns', []) as $hiddenColumnName => $notUsed) {
+        foreach ($request->query->all('hiddenColumns') ?: $request->request->all('hiddenColumns') as $hiddenColumnName => $notUsed) {
             $column = $table->getColumnByName($hiddenColumnName);
             if (!is_null($column)) {
                 $column->setHidden(true);
@@ -201,7 +201,7 @@ class TableService extends AbstractTableService
         $this->addSearch($table, $request, $qb);
 
         // handle ordering
-        $queryParams = $request->get($table->getFormId());
+        $queryParams = $request->query->all($table->getFormId()) ?: $request->request->all($table->getFormId()) ?: [];
 
         if (isset($queryParams['sortColumn']) && $queryParams['sortColumn'] != '') {
             $column = $table->getColumnByName($queryParams['sortColumn']);
@@ -374,8 +374,8 @@ class TableService extends AbstractTableService
                 $rsm = new Query\ResultSetMapping();
                 $rsm->addScalarResult('dctrn_count', 'count');
                 $nativeQuery = $em->createNativeQuery(sprintf('SELECT COUNT(*) AS dctrn_count FROM (%s) AS dctrn_table', $sql), $rsm);
-                foreach ($qb->getParameters() as $key => $item) {
-                    $nativeQuery->setParameter($key + 1, $item->getValue());
+                foreach ($qb->getParameters() as $item) {
+                    $nativeQuery->setParameter($item->getName(), $item->getValue(), $item->getType());
                 }
 
                 return (int)$nativeQuery->getSingleScalarResult();

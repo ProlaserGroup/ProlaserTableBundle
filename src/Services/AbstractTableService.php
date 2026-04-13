@@ -2,11 +2,13 @@
 
 namespace Kilik\TableBundle\Services;
 
+use Exception;
 use Kilik\TableBundle\Components\TableInterface;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\FormFactory;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Throwable;
 use Twig\Environment;
 
 abstract class AbstractTableService implements TableServiceInterface
@@ -145,7 +147,7 @@ abstract class AbstractTableService implements TableServiceInterface
      * @param Request        $request
      *
      * @return Response
-     * @throws \Exception|\Throwable
+     * @throws Exception|Throwable
      */
     public function handleRequest(TableInterface $table, Request $request)
     {

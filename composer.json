@@ -18,12 +18,12 @@
     }
   ],
   "require": {
-    "php": "^7.4||^8.0",
+    "php": ">=8.2",
     "ext-json": "*",
     "twig/twig": "^1.0||^2.0||^3.0",
     "doctrine/orm": "^2.5|^3.2",
     "doctrine/doctrine-bundle": "~1.0||~2.0",
-    "symfony/form": "^4.0||^5.0||^6.0||^7.0"
+    "symfony/form": "^4.0||^5.0||^6.0||^7.0||^8.0"
   },
   "replace": {
     "kilik/table": "self.version"
@@ -34,7 +34,7 @@
     }
   },
   "require-dev": {
-    "symfony/phpunit-bridge": "^5.0||^6.0||^7.0"
+    "symfony/phpunit-bridge": "^5.0||^6.0||^7.0||^8.0"
   },
   "config": {
     "allow-plugins": {

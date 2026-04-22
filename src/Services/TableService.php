@@ -221,8 +221,21 @@ class TableService extends AbstractTableService
             }
         }
 
-        // force a final ordering by id
-        $qb->addOrderBy($table->getAlias().'.id', 'asc');
+        // force a final ordering by identifier (skip if already in ORDER BY)
+        $orderFields = $table->getIdentifierFieldNames() ?? $table->getAlias() . '.id';
+        $existingOrderBy = [];
+        foreach ($qb->getDQLPart('orderBy') as $orderBy) {
+            foreach ($orderBy->getParts() as $part) {
+                // each part looks like "i.itemCode ASC" — extract just the field name
+                $existingOrderBy[] = strtolower(trim(preg_replace('/\s+(asc|desc)$/i', '', $part)));
+            }
+        }
+        foreach (explode(',', $orderFields) as $orderField) {
+            $orderField = trim($orderField);
+            if (!in_array(strtolower($orderField), $existingOrderBy, true)) {
+                $qb->addOrderBy($orderField, 'asc');
+            }
+        }
 
         if ($table->haveTotalColumns()) {
             $totalQueryBuilder = clone ($qb);
@@ -278,7 +291,7 @@ class TableService extends AbstractTableService
             // results as scalar
             foreach ($rows as $row) {
                 // add row identifier to array
-                $identifiers[] = $row[$table->getAlias().'_id'];
+                $identifiers[] = $row[$this->getScalarIdentifierKey($table)];
             }
 
             // if at least one identifier should be used to load entities
@@ -292,7 +305,7 @@ class TableService extends AbstractTableService
                     foreach ($rows as &$row) {
                         $row['object'] = null;
                         foreach ($entities as $entity) {
-                            if ($row[$table->getAlias().'_id'] == $entity->getId()) {
+                            if ($row[$this->getScalarIdentifierKey($table)] == $entity->getId()) {
                                 $row['object'] = $entity;
                                 break;
                             }
@@ -306,9 +319,9 @@ class TableService extends AbstractTableService
         if ($getObjects && $table->getEntityLoaderMode() == $table::ENTITY_LOADER_LEGACY) {
             // results as scalar
             foreach ($rows as &$row) {
-                $index = is_int($row[$table->getAlias().'_id'])
-                    ? $row[$table->getAlias().'_id']
-                    : (string) $row[$table->getAlias().'_id'];
+                $index = is_int($row[$this->getScalarIdentifierKey($table)])
+                    ? $row[$this->getScalarIdentifierKey($table)]
+                    : (string)$row[$this->getScalarIdentifierKey($table)];
 
                 if (isset($objects[$index])) {
                     $row['object'] = $objects[$index];
@@ -385,6 +398,7 @@ class TableService extends AbstractTableService
                 return $paginatorFiltered->count();
             default:
                 $qb->select($qb->expr()->count($identifiers));
+                $qb->resetDQLPart('orderBy');
 
                 return (int)$qb->getQuery()->getSingleScalarResult();
         }
@@ -456,5 +470,20 @@ class TableService extends AbstractTableService
         }
 
         return count($parts) === 1 ? $parts[0] : '(' . implode(' OR ', $parts) . ')';
+    }
+
+    /**
+     * Returns the scalar hydration key for the table's primary identifier.
+     * e.g. 'i.itemCode' → 'i_itemCode', falls back to 'alias_id' if not set.
+     */
+    private function getScalarIdentifierKey(TableInterface $table): string
+    {
+        $identifierFieldNames = $table->getIdentifierFieldNames();
+        if ($identifierFieldNames) {
+            $first = trim(explode(',', $identifierFieldNames)[0]);
+            return str_replace('.', '_', $first);
+        }
+
+        return $table->getAlias() . '_id';
     }
 }

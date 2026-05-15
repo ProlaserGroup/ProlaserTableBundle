@@ -8,11 +8,31 @@ use Doctrine\ORM\Tools\Pagination\Paginator;
 use Kilik\TableBundle\Components\Filter;
 use Kilik\TableBundle\Components\Table;
 use Kilik\TableBundle\Components\TableInterface;
+use Symfony\Component\Cache\Adapter\ApcuAdapter;
+use Symfony\Component\Cache\Adapter\NullAdapter;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 class TableService extends AbstractTableService
 {
     public const TOTAL_PREFIX = 'TOTAL_';
+
+    private CacheInterface $cache;
+
+    public function setCache(CacheInterface $cache): void
+    {
+        $this->cache = $cache;
+    }
+
+    private function getCache(): CacheInterface
+    {
+        if (!isset($this->cache)) {
+            $this->cache = ApcuAdapter::isSupported() ? new ApcuAdapter('kilik_table', 30) : new NullAdapter();
+        }
+
+        return $this->cache;
+    }
 
     /**
      * @param Table        $table
@@ -132,16 +152,22 @@ class TableService extends AbstractTableService
 
     /**
      * Set total rows count without filters.
+     * Result is cached for 30 seconds keyed on the table id + base DQL to avoid a
+     * COUNT query on every AJAX pagination request when the data is stable.
      *
      * @param Table $table
      */
     protected function setTotalRows(Table $table)
     {
         $qb = $table->getQueryBuilder();
-        $qbtr = clone $qb;
-
         $identifiers = $table->getIdentifierFieldNames();
-        $count = $this->countRows($qbtr, $identifiers);
+
+        $cacheKey = 'tbl_total_' . md5($table->getId() . $qb->getDQL());
+
+        $count = $this->getCache()->get($cacheKey, function (ItemInterface $item) use ($qb, $identifiers) {
+            $item->expiresAfter(30);
+            return $this->countRows(clone $qb, $identifiers);
+        });
 
         $table->setTotalRows($count);
     }

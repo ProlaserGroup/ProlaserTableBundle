@@ -18,7 +18,7 @@ function KilikTable(id, path, options) {
     this.askForReloadTimer = null;
 
     // Nouvelles propriétés pour le rechargement automatique
-    this.autoReloadOnVisibility = true; // Activate/disable auto-reload on window focus
+    this.autoReloadOnVisibility = false; // Activate/disable auto-reload on window focus
     this.autoReloadTimeout = 300000; // Default delay for auto-reload (5 minutes)
     this.lastReloadTime = Date.now(); // Last reload timestamp
     this.visibilityChangeHandler = null; // Reference to the visibility change event handler
@@ -48,8 +48,6 @@ function KilikTable(id, path, options) {
     }
 
     this.applyOptions = function (options) {
-        console.log(options);
-
         var allowedOptions = [
             "sortColumnClassSortable",
             "sortColumnClassSorted",
@@ -60,8 +58,8 @@ function KilikTable(id, path, options) {
             "defaultHiddenColumns",
             "skipLoadFromLocalStorage",
             "skipLoadFilterFromLocalStorage",
-            "autoReloadOnFocus",
-            "autoReloadDelay"
+            "autoReloadOnVisibility",
+            "autoReloadTimeout"
         ]
         for (optionKey in options) {
             if (allowedOptions.indexOf(optionKey) !== -1) {
@@ -594,7 +592,6 @@ function KilikTable(id, path, options) {
                 var timeSinceLastReload = now - table.lastReloadTime;
 
                 if (timeSinceLastReload > table.autoReloadTimeout) {
-                    console.log('Auto-reloading table after ' + (timeSinceLastReload / 1000) + ' seconds');
                     table.doReload();
                 }
             }

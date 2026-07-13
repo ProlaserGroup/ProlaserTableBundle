@@ -56,6 +56,7 @@ class Table extends AbstractTable
      */
     private $entityLoaderCallback = null;
 
+
     /**
      * @param QueryBuilder $queryBuilder
      * @param string       $alias

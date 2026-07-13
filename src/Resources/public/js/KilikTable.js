@@ -8,6 +8,8 @@ function KilikTable(id, path, options) {
     this.path = path;
     this.rowsPerPage = 10;
     this.defaultSort = [];
+    this.defaultSortColumn = "";
+    this.defaultSortReverse = false;
     this.page = 1;
     this.totalRows = 0;
     this.totalFilteredRows = 0;
@@ -55,6 +57,8 @@ function KilikTable(id, path, options) {
             "askForReloadDelay",
             "rowsPerPage",
             "defaultSort",
+            "defaultSortColumn",
+            "defaultSortReverse",
             "defaultHiddenColumns",
             "skipLoadFromLocalStorage",
             "skipLoadFilterFromLocalStorage",
@@ -161,6 +165,14 @@ function KilikTable(id, path, options) {
 
         if (!table.skipLoadFromLocalStorage) {
             this.loadFromLocalStorage();
+        }
+
+        // apply default sort when no sort is active
+        if (table.sortColumn === "" && table.defaultSortColumn !== "") {
+            table.sortColumn = table.defaultSortColumn;
+            table.sortReverse = table.defaultSortReverse;
+            $("input[name='" + table.getFormName() + "[sortColumn]']").val(table.sortColumn);
+            $("input[name='" + table.getFormName() + "[sortReverse]']").val(table.sortReverse ? 1 : 0);
         }
 
         // update sorted columns
@@ -659,7 +671,8 @@ function KilikTable(id, path, options) {
             massActionName = $(this).data('name');
             action = $(this).data('mass-action');
 
-            $(this).on('click', function () {
+            $(this).off('click.kilikMassAction').on('click.kilikMassAction', function () {
+                checkedRows = [];
                 $('[name="kilik_' + table.id + '_selected[]"]').each(function () {
                     if ($(this).is(":checked")) {
                         checkedRows.push($(this).val());

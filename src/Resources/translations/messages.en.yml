@@ -9,3 +9,4 @@ kiliktable:
     mass_select: select all
     select: select
     total: total
+    refresh: refresh

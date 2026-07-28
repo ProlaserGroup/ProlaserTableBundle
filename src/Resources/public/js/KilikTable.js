@@ -83,7 +83,10 @@ function KilikTable(id, path, options) {
         $table.trigger('kilik:init:start', [table]);
 
         // bouton pour forcer une actualisation
-        $table.find("#" + id + "_submit").click(function () {
+        // NB: not scoped to $table.find() because this button lives in the panel
+        // toolbar, outside the <table id="{{ table.id }}"> element itself (same
+        // reason "#..._rows_per_page" below is bound via the global $() too).
+        $("#" + id + "_submit").click(function () {
             table.doReload();
         });
 

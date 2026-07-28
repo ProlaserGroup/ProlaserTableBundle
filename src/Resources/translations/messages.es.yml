@@ -9,3 +9,4 @@ kiliktable:
     mass_select: seleccionar todo
     select: seleccionar
     total: total
+    refresh: actualizar

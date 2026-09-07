@@ -18,6 +18,9 @@ function KilikTable(id, path, options) {
     // delay after a key pressed before reload (ms)
     this.askForReloadDelay = 250;
     this.askForReloadTimer = null;
+    // signature of the form state at the last reload, used to skip redundant
+    // filter-triggered reloads (see askForReload)
+    this.lastReloadSignature = null;
 
     // Nouvelles propriétés pour le rechargement automatique
     this.autoReloadOnVisibility = false; // Activate/disable auto-reload on window focus
@@ -410,6 +413,29 @@ function KilikTable(id, path, options) {
     }
 
     /**
+     * Build a signature of the current form state (filters, page, rows per page,
+     * hidden columns) to detect whether a reload would actually change anything.
+     *
+     * @returns String
+     */
+    this.getReloadSignature = function () {
+        // Ignore the row-selection checkboxes: toggling one must not count as a
+        // filter change, otherwise checking a row would trigger a reload that
+        // wipes the very selection the user just made.
+        var selectedName = "kilik_" + id + "_selected[]";
+        var massCheckName = "kilik_" + id + "_mass_check";
+        var data = $("form[name=" + id + "_form]").serializeArray().filter(function (item) {
+            return item.name !== selectedName && item.name !== massCheckName;
+        });
+        data.push({"name": "page", "value": this.page});
+        data.push({"name": "rowsPerPage", "value": this.rowsPerPage});
+        for (key in this.hiddenColumns) {
+            data.push({"name": "hiddenColumns[" + this.hiddenColumns[key] + "]", "value": 1});
+        }
+        return JSON.stringify(data);
+    }
+
+    /**
      * Ask for reload, until timeout
      */
     this.askForReload = function () {
@@ -423,6 +449,14 @@ function KilikTable(id, path, options) {
 
         // reload planned
         this.askForReloadTimer = setTimeout(function () {
+            // Skip a redundant reload when the filter state is unchanged since
+            // the last one. A text filter carries both refreshOnKeyup and
+            // refreshOnChange, so after the keyup reload its "change" event
+            // (fired on blur, e.g. when the user then clicks a row checkbox)
+            // would trigger a pointless refresh that wipes the row selection.
+            if (table.getReloadSignature() === table.lastReloadSignature) {
+                return;
+            }
             table.doReload();
         }, table.askForReloadDelay);
 
@@ -517,6 +551,7 @@ function KilikTable(id, path, options) {
      */
     this.doReload = function () {
         var table = this;
+        this.lastReloadSignature = this.getReloadSignature();
         this.showPlaceholders();
         var postData = $("form[name=" + id + "_form]").serializeArray();
         postData.push({"name": "page", "value": table.page,});

@@ -2,12 +2,11 @@
 
 namespace Kilik\TableBundle\Services;
 
+use Kilik\TableBundle\Components\Table;
 use Kilik\TableBundle\Components\TableInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Kilik\TableBundle\Components\Table;
-use Kilik\TableBundle\Components\Filter;
 
 interface TableServiceInterface
 {
@@ -66,6 +65,17 @@ interface TableServiceInterface
      * @return Response
      */
     public function handleRequest(TableInterface $table, Request $request);
+
+    /**
+     * Render the JSON response (with pagination) for rows already fetched via getRows(),
+     * without re-executing the table's query.
+     *
+     * @param TableInterface $table
+     * @param array $rows
+     *
+     * @return Response
+     */
+    public function renderResponse(TableInterface $table, array $rows);
 
 
     /**

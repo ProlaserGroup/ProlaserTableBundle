@@ -154,6 +154,23 @@ abstract class AbstractTableService implements TableServiceInterface
         // execute query with filters
         $rows = $this->getRows($table, $request);
 
+        return $this->renderResponse($table, $rows);
+    }
+
+    /**
+     * Render the JSON response (with pagination) for rows already fetched via getRows(),
+     * without re-executing the table's query. Lets a caller that needs the rows before
+     * rendering (e.g. to enrich display callbacks with data looked up by row identifier)
+     * avoid running the query twice.
+     *
+     * @param TableInterface $table
+     * @param array $rows
+     *
+     * @return Response
+     * @throws Exception|Throwable
+     */
+    public function renderResponse(TableInterface $table, array $rows)
+    {
         // params for twig parts
         $twigParams = array(
             'table' => $table,

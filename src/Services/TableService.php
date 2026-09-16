@@ -88,12 +88,12 @@ class TableService extends AbstractTableService
                     $queryBuilder->setParameter('filter_'.$filter->getName(), $formattedSearch);
                     break;
                 case Filter::TYPE_EQUAL:
-                    $sql = $this->buildMultiFieldSql($filter, '%s like :filter_' . $filter->getName());
-                    $queryBuilder->setParameter('filter_'.$filter->getName(), $formattedSearch);
+                    $sql = $this->buildMultiFieldSql($filter, "%s like :filter_" . $filter->getName() . " ESCAPE '\\'");
+                    $queryBuilder->setParameter('filter_' . $filter->getName(), $this->escapeLikeValue($formattedSearch));
                     break;
                 case Filter::TYPE_NOT_LIKE:
-                    $sql = $this->buildMultiFieldSql($filter, '%s not like :filter_' . $filter->getName());
-                    $queryBuilder->setParameter('filter_'.$filter->getName(), '%'.$formattedSearch.'%');
+                    $sql = $this->buildMultiFieldSql($filter, "%s not like :filter_" . $filter->getName() . " ESCAPE '\\'");
+                    $queryBuilder->setParameter('filter_' . $filter->getName(), '%' . $this->escapeLikeValue($formattedSearch) . '%');
                     break;
                 case Filter::TYPE_NULL:
                     $sql = $this->buildMultiFieldSql($filter, '%s IS NULL');
@@ -128,16 +128,16 @@ class TableService extends AbstractTableService
                             $sql .= ' '.$binaryOperator.' '; // AND / OR
                         }
                         $termKey = 'filter_'.$filter->getName().'_t'.$i;
-                        $sql .= $filter->getField().' like :'.$termKey;
-                        $queryBuilder->setParameter($termKey, '%'.$word.'%');
+                        $sql .= $filter->getField() . " like :" . $termKey . " ESCAPE '\\'";
+                        $queryBuilder->setParameter($termKey, '%' . $this->escapeLikeValue($word) . '%');
                     }
                     $sql .= ')';
                     break;
                 default:
                 case Filter::TYPE_LIKE:
-                $sql = $this->buildMultiFieldSql($filter, '%s like :filter_' . $filter->getName(), $queryBuilder, $formattedSearch);
+                $sql = $this->buildMultiFieldSql($filter, "%s like :filter_" . $filter->getName() . " ESCAPE '\\'", $queryBuilder, $formattedSearch);
                 if ($sql) {
-                    $queryBuilder->setParameter('filter_' . $filter->getName(), '%' . $formattedSearch . '%');
+                    $queryBuilder->setParameter('filter_' . $filter->getName(), '%' . $this->escapeLikeValue($formattedSearch) . '%');
                 }
                     break;
             }
@@ -445,6 +445,16 @@ class TableService extends AbstractTableService
      * Example: buildMultiFieldSql($filter, '%s like :filter_name')
      * With fields ['f1','f2'] produces: (f1 like :filter_name OR f2 like :filter_name)
      */
+    /**
+     * Escapes LIKE wildcards (`%`, `_`) and the escape character itself (`\`) in a user-supplied
+     * search value, so a literal search (e.g. "PH_") isn't interpreted as "PH" + any single char.
+     * Must be paired with an `ESCAPE '\'` clause on the LIKE in SQL.
+     */
+    protected function escapeLikeValue(string $value): string
+    {
+        return str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $value);
+    }
+
     protected function buildMultiFieldSql(Filter $filter, string $template, ?QueryBuilder $queryBuilder = null, string $rawValue = ''): string
     {
         $fields = $filter->getFields();

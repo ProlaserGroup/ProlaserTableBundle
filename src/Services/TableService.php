@@ -136,7 +136,8 @@ class TableService extends AbstractTableService
                 default:
                 case Filter::TYPE_LIKE:
                 $sql = $this->buildMultiFieldSql($filter, "%s like :filter_" . $filter->getName() . " ESCAPE '\\'", $queryBuilder, $formattedSearch);
-                if ($sql) {
+                // integer-typed fields may have replaced the LIKE placeholder with their own parameter
+                if ($sql && preg_match('/:filter_' . preg_quote($filter->getName(), '/') . '\b/', $sql)) {
                     $queryBuilder->setParameter('filter_' . $filter->getName(), '%' . $this->escapeLikeValue($formattedSearch) . '%');
                 }
                     break;

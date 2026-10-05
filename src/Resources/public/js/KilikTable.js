@@ -379,7 +379,7 @@ function KilikTable(id, path, options) {
         tableFilters.each(function () {
             var element = $(this);
 
-            if ((element.is('input') && element.value !== '') || (element.is('select') && element.selectedIndex !== 0)) {
+            if ((element.is('input') && element.val() !== '') || (element.is('select') && element.prop('selectedIndex') !== 0)) {
                 enabledFilters++;
             }
         });
@@ -591,8 +591,11 @@ function KilikTable(id, path, options) {
                     table.page = button.attr("data-table-page");
                     table.doReload();
                 });
+                // Only visible filter fields count: hidden inputs (_token, sortColumn,
+                // defaultSort...) are always filled and would make the "clear filters"
+                // button permanently visible (and get wiped by clearFilters()).
                 $("form[name='" + table.getFormName() + "'] [name]").each(function (index, elem) {
-                    if (!$(elem).is(":checkbox") && !$(elem).is(":radio")) {
+                    if (!$(elem).is(":checkbox") && !$(elem).is(":radio") && !$(elem).is("[type=hidden]")) {
                         $(elem).toggleClass('table-filter-filled', $(elem).val() !== '');
                     }
                 });

@@ -611,6 +611,7 @@ function KilikTable(id, path, options) {
             table.updateLastReloadTime();
             table.afterReload(dataRaw);
             table.hidePlaceholders();
+            $("#" + id).trigger('kilik:reload:end', [table]);
         }).fail(function (jqXHR, textStatus, errorThrown) {
             // Only remove placeholders if it's not an abort (to avoid hiding them when a new request starts)
             if (textStatus !== 'abort') {

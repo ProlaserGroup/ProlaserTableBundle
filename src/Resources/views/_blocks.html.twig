@@ -1,20 +1,11 @@
+{# "Action" button: greyed out by KilikTable.updateMassActionsState() while no row is checked (style: css/mass-action.css) #}
 {% block tableHeadMassActionsColumn %}
     {% if table.massActions %}
         <th class="mass-action">
-
-        </th>
-    {% endif %}
-{% endblock tableHeadMassActionsColumn %}
-
-{% block tableFilterMassActionsColumn %}
-    {% if table.massActions %}
-        <td class="mass-action" data-label="{{ 'kiliktable.mass_select'|trans }}">
-            <div class="input-group btn-group">
-                <span class="input-group-addon">
-                    <input type="checkbox" id="kilik_{{ table.id }}_mass_check"/>
-                </span>
-                <button type="button" class="btn dropdown-toggle table-action-hide" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="caret"></span>
+            <div class="dropdown">
+                <button type="button" class="btn btn-sm dropdown-toggle mass-action-btn" data-bs-toggle="dropdown"
+                        aria-expanded="false" disabled title="Cochez au moins une ligne pour accéder aux actions">
+                    Action <span class="badge mass-action-count d-none"></span>
                 </button>
                 <ul class="dropdown-menu">
                     {% for massAction in table.massActions %}
@@ -22,9 +13,9 @@
                             <a href="#" id="kilik_{{ table.id }}_btn_mass_{{ massAction.name }}_selected"
                                data-mass-action="{{ massAction.action }}"
                                data-name="{{ massAction.name }}"
-                               class="btn-border-success checkbox-action"
+                               class="dropdown-item checkbox-action"
                             >
-                                <b class="success"><i class="{{ massAction.class }}"></i> {{ massAction.label }}</b>
+                                {{ ux_icon('tabler:activity-heartbeat', { height: '20', width: '20', fill: 'white'}) }} {{ massAction.label }}
                             </a>
                         </li>
                         {% if loop.last == false %}
@@ -32,6 +23,16 @@
                         {% endif %}
                     {% endfor %}
                 </ul>
+            </div>
+        </th>
+    {% endif %}
+{% endblock tableHeadMassActionsColumn %}
+
+{% block tableFilterMassActionsColumn %}
+    {% if table.massActions %}
+        <td class="mass-action" data-label="{{ 'kiliktable.mass_select'|trans }}">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="kilik_{{ table.id }}_mass_check"/>
             </div>
         </td>
     {% endif %}
@@ -41,15 +42,12 @@
     {% if table.massActions %}
         <td class="mass-action" data-label="{{ 'kiliktable.select'|trans }}">
             <div class="input-group">
-                <span class="input-group-addon">
-                    <input type="checkbox" id="checkbox-{{ row.object.id }}" name="kilik_{{ table.id }}_selected[]" value="{{ row.object.id }}"/>
+                <span class="form-check">
+                    <input class="form-check-input" type="checkbox" id="checkbox-{{ row.object.id }}"
+                           name="kilik_{{ table.id }}_selected[]" value="{{ row.object.id }}"/>
                     <label for="checkbox-{{ row.object.id }}"></label>
                 </span>
             </div>
         </td>
     {% endif %}
 {% endblock tableBodyMassActionsColumn %}
-
-
-
-

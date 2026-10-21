@@ -194,6 +194,11 @@ function KilikTable(id, path, options) {
             table.checkAll($(this).prop('checked'));
         });
 
+        // enable the "Action" button as soon as a row is checked
+        $table.on('change', '[name="kilik_' + table.id + '_selected[]"]', function () {
+            table.updateMassActionsState();
+        });
+
         // init auto-reload
         this.initAutoReload();
 
@@ -730,6 +735,29 @@ function KilikTable(id, path, options) {
         });
 
         $('#kilik_' + table.id + '_mass_check').prop('checked', false);
+        table.updateMassActionsState();
+    };
+
+    /**
+     * Grey out the "Action" button (and the actions needing a selection) while no row is checked.
+     * Items flagged data-mass-action-no-selection stay usable, so the button then remains clickable.
+     * Only headers rendering a .mass-action-btn are handled, so overridden legacy markup is left untouched.
+     */
+    this.updateMassActionsState = function () {
+        var $table = $('#' + this.id);
+        var count = $('[name="kilik_' + this.id + '_selected[]"]:checked', $table).length;
+
+        $('th.mass-action', $table).has('.mass-action-btn').each(function () {
+            var $items = $('.dropdown-item', this);
+            var hasFreeItems = $items.filter('[data-mass-action-no-selection]').length > 0;
+
+            $items.not('[data-mass-action-no-selection]').toggleClass('disabled', count === 0);
+            $('.mass-action-btn', this)
+                .prop('disabled', count === 0 && !hasFreeItems)
+                .toggleClass('has-selection', count > 0)
+                .attr('title', count === 0 ? 'Cochez au moins une ligne pour accéder aux actions' : null);
+            $('.mass-action-count', this).text(count).toggleClass('d-none', count === 0);
+        });
     };
 
     /**
@@ -743,6 +771,7 @@ function KilikTable(id, path, options) {
         $('[name="kilik_' + tableId + '_selected[]"]').each(function () {
             $(this).prop('checked', status);
         });
+        this.updateMassActionsState();
     }
 }
 

@@ -153,6 +153,16 @@ You can get all rows checked as following :
 });
 ```
 
+The "Action" button (`.mass-action-btn`) is disabled while no row is checked and shows the number of checked rows.
+Include its stylesheet in your layout:
+
+```twig
+<link rel="stylesheet" href="{{ asset('bundles/kiliktable/css/mass-action.css') }}">
+```
+
+When overriding the header with custom actions, flag the items that do not need a selection with
+`data-mass-action-no-selection`: they stay clickable, and so does the button.
+
 ### Events / Listeners
 
 * `kilik:init:start` jQuery event when table init process starts

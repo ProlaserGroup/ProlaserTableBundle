@@ -1,0 +1,42 @@
+/*
+ * KilikTable "Action" (mass action) button.
+ * Rendered as a real button so users see it is clickable; greyed out by
+ * KilikTable.updateMassActionsState() while no row is checked.
+ * Relies on the CoreUI 5 / Bootstrap 5 button variables (--cui-btn-*).
+ */
+.mass-action-btn {
+    --cui-btn-color: var(--cui-primary);
+    --cui-btn-border-color: var(--cui-primary);
+    --cui-btn-hover-color: #fff;
+    --cui-btn-hover-bg: var(--cui-primary);
+    --cui-btn-hover-border-color: var(--cui-primary);
+    --cui-btn-active-color: #fff;
+    --cui-btn-active-bg: var(--cui-primary);
+    --cui-btn-active-border-color: var(--cui-primary);
+    --cui-btn-disabled-color: var(--cui-secondary-color);
+    --cui-btn-disabled-bg: var(--cui-tertiary-bg);
+    --cui-btn-disabled-border-color: var(--cui-border-color);
+    --cui-btn-disabled-opacity: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.mass-action-btn.has-selection {
+    --cui-btn-color: #fff;
+    --cui-btn-bg: var(--cui-primary);
+    box-shadow: var(--cui-box-shadow-sm);
+}
+
+.mass-action-btn:disabled {
+    cursor: not-allowed;
+    /* keep the native title tooltip on the disabled button */
+    pointer-events: auto;
+}
+
+.mass-action-btn .mass-action-count {
+    background: #fff;
+    color: var(--cui-primary);
+}

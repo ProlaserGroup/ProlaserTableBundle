@@ -5,15 +5,30 @@
  * light / dark theme.
  */
 
-/* Card around the table: soft shadow; toolbar on top, result count + pagination at the bottom.
-   No overflow: hidden here, it would clip the dropdowns opened from the toolbar: the footer is rounded
-   instead to follow the card corners */
+/* Card around the table: bordered and rounded, soft shadow; toolbar on top, result count + pagination at
+   the bottom. No overflow: hidden here, it would clip the dropdowns opened from the toolbar: the heading
+   and footer are rounded instead to follow the card corners */
 .panel:has(> .panel-body.table-responsive) {
+  border: 1px solid var(--cui-border-color);
+  border-radius: var(--cui-border-radius);
+  background: var(--cui-body-bg);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 .panel:has(> .panel-body.table-responsive) > .panel-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
   padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--cui-border-color);
+  border-radius: var(--cui-border-radius) var(--cui-border-radius) 0 0;
   background: var(--cui-body-bg);
+}
+.panel:has(> .panel-body.table-responsive) > .panel-heading .panel-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.panel:has(> .panel-body.table-responsive) > .panel-body {
+  padding: 0;
 }
 .panel:has(> .panel-body.table-responsive) > .panel-heading .form-select-sm {
   border-radius: var(--cui-border-radius-pill);
@@ -24,6 +39,8 @@
   color: var(--cui-secondary-color);
 }
 .panel:has(> .panel-body.table-responsive) > .panel-footer {
+  padding: 0.6rem 1rem;
+  border-top: 1px solid var(--cui-border-color);
   border-radius: 0 0 var(--cui-border-radius) var(--cui-border-radius);
   background: var(--cui-tertiary-bg);
   color: var(--cui-secondary-color);

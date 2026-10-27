@@ -10,3 +10,10 @@ kiliktable:
     select: selecteer
     total: totaal
     refresh: vernieuwen
+    sort_by: "Sorteren op %column%"
+    filter_placeholder: "Filteren…"
+    no_result: "Geen resultaten"
+    no_result_hint: "Wijzig of wis de filters om de zoekopdracht te verbreden."
+    stats_of: "van"
+    stats_results: "[0,1] resultaat|]1,Inf[ resultaten"
+    stats_filtered_from: "gefilterd uit %totalRows%"

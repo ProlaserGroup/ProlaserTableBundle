@@ -8,15 +8,23 @@
 {% endif %}
 
 {% if column.sortable %}
-    <th class="columnSortable{% if column.headerClass is not null %} {{ column.headerClass }}{% endif %}" data-column="{{ column.name }}" data-sort-column="{{ column.name }}"  data-label="{{column.label}}" scope="col">
-        <a href="#">
-            {{ label }}
+    <th class="columnSortable{% if column.headerClass is not null %} {{ column.headerClass }}{% endif %}"
+        data-column="{{ column.name }}" data-sort-column="{{ column.name }}" data-label="{{ column.label }}"
+        scope="col">
+        {# KilikTable.js toggles the sort state class on this link (sort-asc / sort-desc, or the
+           glyphicon-sort-by-alphabet(-alt) defaults); kilik-table-theme.css shows the matching icon #}
+        <a href="#" class="columnSortableIcon" title="{{ 'kiliktable.sort_by'|trans({'%column%': label}) }}">
+            <span class="kt-sort-label">{{ label }}</span>
+            <span class="kt-sort-icon" aria-hidden="true">
+                <span class="kt-sort-none">{{ ux_icon('tabler:selector', { height: '14', width: '14' }) }}</span>
+                <span class="kt-sort-asc">{{ ux_icon('tabler:arrow-up', { height: '14', width: '14' }) }}</span>
+                <span class="kt-sort-desc">{{ ux_icon('tabler:arrow-down', { height: '14', width: '14' }) }}</span>
+            </span>
         </a>
-        <span class="glyphicon columnSortableIcon"></span>
     </th>
 {% else %}
-    <th data-column="{{ column.name }}" data-label="{{column.label}}" scope="col">
+    <th class="{% if column.headerClass is not null %} {{ column.headerClass }}{% endif %}"
+        data-column="{{ column.name }}" data-label="{{ column.label }}" scope="col">
         {{ label }}
     </th>
 {% endif %}
-

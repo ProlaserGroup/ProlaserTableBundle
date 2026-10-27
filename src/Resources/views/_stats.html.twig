@@ -1,8 +1,16 @@
 {# @KilikTable/_stats.html.twig #}
-
 {% if tableRenderStats is defined %}
-    {{ "kiliktable.showing_entries"|trans({"%count%" : table.filteredRows, "%firstRow%": table.firstRow,"%lastRow%": table.lastRow,"%filteredRows%":table.filteredRows}) }}
-    {% if table.filteredRows != table.totalRows and table.totalRows > 0 %}
-        ({{ "kiliktable.filtered_from"|trans({"%count%": table.totalRows, "%totalRows%":table.totalRows}) }})
-    {% endif %}
+    <span class="kt-stats">
+        {% if table.filteredRows == 0 %}
+            {{ "kiliktable.no_result"|trans }}
+        {% else %}
+            <strong>{{ table.firstRow|format_number }} – {{ table.lastRow|format_number }}</strong>
+            {{ "kiliktable.stats_of"|trans }}
+            <strong>{{ table.filteredRows|format_number }}</strong>
+            {{ "kiliktable.stats_results"|trans({"%count%": table.filteredRows}) }}
+        {% endif %}
+        {% if table.filteredRows != table.totalRows and table.totalRows > 0 %}
+            · {{ "kiliktable.stats_filtered_from"|trans({"%count%": table.filteredRows, "%totalRows%": table.totalRows|format_number}) }}
+        {% endif %}
+    </span>
 {% endif %}

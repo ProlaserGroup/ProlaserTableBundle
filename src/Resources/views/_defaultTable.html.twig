@@ -85,6 +85,8 @@
                                     {% endfor %}
                                 {% endblock tableBodyStdColumns %}
                             </tr>
+                        {% else %}
+                            {% include "@KilikTable/_emptyRow.html.twig" %}
                         {% endfor %}
                     {% endif %}
                 {% endblock tableBody %}

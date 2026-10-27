@@ -10,3 +10,10 @@ kiliktable:
     select: seleccionar
     total: total
     refresh: actualizar
+    sort_by: "Ordenar por %column%"
+    filter_placeholder: "Filtrar…"
+    no_result: "Sin resultados"
+    no_result_hint: "Modifique o borre los filtros para ampliar la búsqueda."
+    stats_of: "de"
+    stats_results: "[0,1] resultado|]1,Inf[ resultados"
+    stats_filtered_from: "[0,1] filtrado entre %totalRows%|]1,Inf[ filtrados entre %totalRows%"

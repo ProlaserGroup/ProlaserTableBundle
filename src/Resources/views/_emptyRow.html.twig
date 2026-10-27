@@ -1,0 +1,9 @@
+{# @KilikTable/_emptyRow.html.twig #}
+{# Body row shown when the current filters match nothing (use in the {% else %} of the rows loop) #}
+<tr class="kt-empty-row">
+    <td colspan="100">
+        {{ ux_icon('mdi:table-search', { height: '32', width: '32' }) }}
+        <span class="kt-empty-title">{{ "kiliktable.no_result"|trans }}</span>
+        {{ "kiliktable.no_result_hint"|trans }}
+    </td>
+</tr>

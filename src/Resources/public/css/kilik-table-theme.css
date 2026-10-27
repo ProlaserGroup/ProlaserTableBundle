@@ -1,0 +1,243 @@
+/*
+ * KilikTable theme (CoreUI 5): applies to every table rendered inside .panel > .panel-body.table-responsive.
+ * Goals: a clear hierarchy (header / filters / data), visible state (sorted column, active filters,
+ * hovered or selected row) and numbers that line up. Only uses --cui-* variables, so it follows the
+ * light / dark theme.
+ */
+
+/* Card around the table: soft shadow; toolbar on top, result count + pagination at the bottom */
+.panel:has(> .panel-body.table-responsive) {
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+.panel:has(> .panel-body.table-responsive) > .panel-heading {
+  padding: 0.6rem 1rem;
+  background: var(--cui-body-bg);
+}
+.panel:has(> .panel-body.table-responsive) > .panel-heading .form-select-sm {
+  border-radius: var(--cui-border-radius-pill);
+  padding-left: 0.75rem;
+}
+.panel:has(> .panel-body.table-responsive) > .panel-heading label {
+  font-size: 0.8rem;
+  color: var(--cui-secondary-color);
+}
+.panel:has(> .panel-body.table-responsive) > .panel-footer {
+  background: var(--cui-tertiary-bg);
+  color: var(--cui-secondary-color);
+  font-size: 0.8rem;
+}
+.panel:has(> .panel-body.table-responsive) > .panel-footer > .row {
+  align-items: center;
+}
+
+/* Table base: no zebra striping, light hover, tabular figures so numbers and dates line up */
+.panel-body.table-responsive > .table {
+  --cui-table-striped-bg: transparent;
+  --cui-table-hover-bg: rgba(var(--cui-primary-rgb), 0.06);
+  margin-bottom: 0;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+/* Column labels: bold on a tinted background, distinct from the data while keeping full contrast */
+.panel-body.table-responsive > .table > thead > tr:first-child > th {
+  --cui-table-bg: var(--cui-tertiary-bg);
+  padding: 0.65rem 0.75rem 0.45rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--cui-emphasis-color);
+  vertical-align: bottom;
+  border-bottom: 0;
+  white-space: normal;
+}
+.panel-body.table-responsive > .table > thead > tr:first-child > th .fw-normal {
+  font-weight: 600 !important;
+}
+/* Sortable columns: one icon at a time, a faint "↕" when not sorted, "↑" / "↓" in the brand colour on
+   the active sort. Both class conventions set by KilikTable.js are handled: sort-asc/sort-desc (custom
+   option) and the glyphicon-sort-by-alphabet(-alt) defaults. */
+.panel-body.table-responsive > .table .columnSortable {
+  cursor: pointer;
+}
+.panel-body.table-responsive > .table .columnSortable .columnSortableIcon {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.25rem;
+  color: inherit;
+  text-decoration: none;
+}
+.panel-body.table-responsive > .table .columnSortable .kt-sort-icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: var(--cui-border-radius-sm);
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.panel-body.table-responsive > .table .columnSortable .kt-sort-icon svg {
+  display: block;
+}
+.panel-body.table-responsive > .table .columnSortable .kt-sort-icon > span {
+  display: none;
+}
+.panel-body.table-responsive > .table .columnSortable .kt-sort-none {
+  display: inline-flex !important;
+  color: var(--cui-tertiary-color);
+}
+.panel-body.table-responsive > .table .columnSortable:hover {
+  color: var(--cui-primary);
+}
+.panel-body.table-responsive > .table .columnSortable:hover .kt-sort-none {
+  color: var(--cui-primary);
+}
+.panel-body.table-responsive > .table .columnSortable .sort-asc,
+.panel-body.table-responsive > .table .columnSortable .glyphicon-sort-by-alphabet,
+.panel-body.table-responsive > .table .columnSortable .sort-desc,
+.panel-body.table-responsive > .table .columnSortable .glyphicon-sort-by-alphabet-alt {
+  color: var(--cui-primary);
+}
+.panel-body.table-responsive > .table .columnSortable .sort-asc .kt-sort-icon,
+.panel-body.table-responsive > .table .columnSortable .glyphicon-sort-by-alphabet .kt-sort-icon,
+.panel-body.table-responsive > .table .columnSortable .sort-desc .kt-sort-icon,
+.panel-body.table-responsive > .table .columnSortable .glyphicon-sort-by-alphabet-alt .kt-sort-icon {
+  color: var(--cui-primary);
+  background-color: rgba(var(--cui-primary-rgb), 0.12);
+}
+.panel-body.table-responsive > .table .columnSortable .sort-asc .kt-sort-none,
+.panel-body.table-responsive > .table .columnSortable .glyphicon-sort-by-alphabet .kt-sort-none,
+.panel-body.table-responsive > .table .columnSortable .sort-desc .kt-sort-none,
+.panel-body.table-responsive > .table .columnSortable .glyphicon-sort-by-alphabet-alt .kt-sort-none {
+  display: none !important;
+}
+.panel-body.table-responsive > .table .columnSortable .sort-asc .kt-sort-asc,
+.panel-body.table-responsive > .table .columnSortable .glyphicon-sort-by-alphabet .kt-sort-asc,
+.panel-body.table-responsive > .table .columnSortable .sort-desc .kt-sort-desc,
+.panel-body.table-responsive > .table .columnSortable .glyphicon-sort-by-alphabet-alt .kt-sort-desc {
+  display: inline-flex;
+}
+/* Filter row: compact inputs, separated from the data by a stronger rule.
+   width: 0 + min-width: 100% so the filter controls contribute nothing to the column widths (which are
+   then sized by their content) and still fill the cell; selects and date pickers keep a usable minimum. */
+.panel-body.table-responsive > .table > thead > tr.filter-row > td,
+.panel-body.table-responsive > .table > thead > tr:nth-child(2) > td {
+  --cui-table-bg: var(--cui-tertiary-bg);
+  padding: 0 0.5rem 0.6rem;
+  border-bottom: 2px solid var(--cui-border-color);
+}
+.panel-body.table-responsive > .table > thead > tr.filter-row > td .form-control,
+.panel-body.table-responsive > .table > thead > tr.filter-row > td .form-select,
+.panel-body.table-responsive > .table > thead > tr:nth-child(2) > td .form-control,
+.panel-body.table-responsive > .table > thead > tr:nth-child(2) > td .form-select {
+  width: 0;
+  min-width: 100%;
+  min-height: 0;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  font-size: 0.8rem;
+  background-color: var(--cui-body-bg);
+  border-color: var(--cui-border-color);
+}
+.panel-body.table-responsive > .table > thead > tr.filter-row > td .form-control::placeholder,
+.panel-body.table-responsive > .table > thead > tr.filter-row > td .form-select::placeholder,
+.panel-body.table-responsive > .table > thead > tr:nth-child(2) > td .form-control::placeholder,
+.panel-body.table-responsive > .table > thead > tr:nth-child(2) > td .form-select::placeholder {
+  color: var(--cui-tertiary-color);
+}
+.panel-body.table-responsive > .table > thead > tr.filter-row > td .form-select,
+.panel-body.table-responsive > .table > thead > tr:nth-child(2) > td .form-select {
+  min-width: max(100%, 6rem);
+}
+.panel-body.table-responsive > .table > thead > tr.filter-row > td input[type=date],
+.panel-body.table-responsive > .table > thead > tr.filter-row > td input[type=datetime-local],
+.panel-body.table-responsive > .table > thead > tr:nth-child(2) > td input[type=date],
+.panel-body.table-responsive > .table > thead > tr:nth-child(2) > td input[type=datetime-local] {
+  min-width: 8.5rem;
+}
+/* Filled filter (class set by KilikTable.js after each reload): makes the active filters obvious */
+.panel-body.table-responsive > .table > thead > tr.filter-row > td .table-filter-filled,
+.panel-body.table-responsive > .table > thead > tr:nth-child(2) > td .table-filter-filled {
+  border-color: var(--cui-primary);
+  background-color: rgba(var(--cui-primary-rgb), 0.08);
+  box-shadow: inset 3px 0 0 var(--cui-primary);
+  font-weight: 600;
+}
+/* Data rows: horizontal rules only, vertically centred */
+.panel-body.table-responsive > .table > tbody > tr > td {
+  padding: 0.6rem 0.75rem;
+  vertical-align: middle;
+  border-bottom-color: var(--cui-border-color-translucent);
+}
+.panel-body.table-responsive > .table > tbody > tr:last-child > td {
+  border-bottom: 0;
+}
+.panel-body.table-responsive > .table > tbody > tr:not(.placeholder-row, .kt-empty-row):hover > td {
+  box-shadow: inset 0 0 0 9999px var(--cui-table-hover-bg);
+}
+/* Selected row: only the mass-action checkbox (kilik_<table>_selected[]), not any other checkbox or
+   switch a cell may contain */
+.panel-body.table-responsive > .table > tbody > tr:has(> td input[type=checkbox][name$="_selected[]"]:checked) {
+  --cui-table-bg: rgba(var(--cui-primary-rgb), 0.1);
+}
+/* Action buttons inside cells stay compact */
+.panel-body.table-responsive > .table > tbody .btn-sm,
+.panel-body.table-responsive > .table > tbody td:last-child .btn {
+  --cui-btn-padding-y: 0.2rem;
+  --cui-btn-padding-x: 0.45rem;
+}
+.panel-body.table-responsive > .table > tfoot td {
+  --cui-table-bg: var(--cui-tertiary-bg);
+  padding: 0.6rem 0.75rem;
+}
+
+/* Empty state (_emptyRow.html.twig), shown when the current filters match nothing */
+.kt-empty-row > td {
+  --cui-table-bg: var(--cui-body-bg);
+  padding: 2.5rem 1rem !important;
+  text-align: center;
+  color: var(--cui-secondary-color);
+}
+.kt-empty-row > td .kt-empty-title {
+  display: block;
+  margin-top: 0.5rem;
+  font-weight: 600;
+  color: var(--cui-body-color);
+}
+
+/* Result count (_stats.html.twig) */
+.kt-stats strong {
+  color: var(--cui-body-color);
+  font-weight: 600;
+}
+
+/* Pagination: rounded buttons, filled active page */
+[id$="_pagination"].btn-group {
+  gap: 0.25rem;
+}
+[id$="_pagination"].btn-group > .btn {
+  min-width: 2rem;
+  border-radius: var(--cui-border-radius) !important;
+  border-color: var(--cui-border-color);
+  color: var(--cui-body-color);
+  background: var(--cui-body-bg);
+  font-variant-numeric: tabular-nums;
+}
+[id$="_pagination"].btn-group > .btn:hover:not(.disabled) {
+  border-color: var(--cui-primary);
+  color: var(--cui-primary);
+}
+[id$="_pagination"].btn-group > .btn.active {
+  background: var(--cui-primary);
+  border-color: var(--cui-primary);
+  color: #fff;
+  opacity: 1;
+  font-weight: 600;
+}
+[id$="_pagination"].btn-group > .btn.disabled:not(.active) {
+  opacity: 0.45;
+}
+[id$="_pagination"].btn-group > .btn svg {
+  fill: currentColor;
+}

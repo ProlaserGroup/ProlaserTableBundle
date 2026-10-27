@@ -124,6 +124,20 @@ function KilikTable(id, path, options) {
         });
 
         var $form = $("form[name='" + this.getFormName() + "']");
+        // highlight the filled filters right away, without waiting for the reload to come back
+        $form.find(".refreshOnKeyup, .refreshOnChange").on("input change", function () {
+            table.updateFilledFilters();
+        });
+        // "✕" button in the text filters to clear them in one click (shown by CSS when the filter is filled)
+        $form.find("input.refreshOnKeyup").filter("[type=text], [type=search], :not([type])").each(function () {
+            var $input = $(this);
+            var $clear = $('<button type="button" class="kt-filter-clear" tabindex="-1" aria-label="clear">✕</button>');
+            $input.parent().addClass("kt-filter-clearable").append($clear);
+            $clear.on("click", function () {
+                $input.val("").trigger("change").trigger("focus");
+            });
+        });
+        this.updateFilledFilters();
         // filtering
         $form.find(".refreshOnChange").change(function () {
             table.askForReload();
@@ -377,6 +391,20 @@ function KilikTable(id, path, options) {
      *
      * @returns int
      */
+    /**
+     * Flag the filled filter fields with the "table-filter-filled" class (highlighted by the theme and
+     * counted by countEnabledFilters). Only visible filter fields count: hidden inputs (_token, sortColumn,
+     * defaultSort...) are always filled and would make the "clear filters" button permanently visible
+     * (and get wiped by clearFilters()).
+     */
+    this.updateFilledFilters = function () {
+        $("form[name='" + this.getFormName() + "'] [name]").each(function (index, elem) {
+            if (!$(elem).is(":checkbox") && !$(elem).is(":radio") && !$(elem).is("[type=hidden]")) {
+                $(elem).toggleClass('table-filter-filled', $(elem).val() !== '');
+            }
+        });
+    }
+
     this.countEnabledFilters = function () {
         var enabledFilters = 0;
         var tableFilters = $('#' + id).find('.table-filter-filled');
@@ -596,14 +624,7 @@ function KilikTable(id, path, options) {
                     table.page = button.attr("data-table-page");
                     table.doReload();
                 });
-                // Only visible filter fields count: hidden inputs (_token, sortColumn,
-                // defaultSort...) are always filled and would make the "clear filters"
-                // button permanently visible (and get wiped by clearFilters()).
-                $("form[name='" + table.getFormName() + "'] [name]").each(function (index, elem) {
-                    if (!$(elem).is(":checkbox") && !$(elem).is(":radio") && !$(elem).is("[type=hidden]")) {
-                        $(elem).toggleClass('table-filter-filled', $(elem).val() !== '');
-                    }
-                });
+                table.updateFilledFilters();
             }
         ).done(function (dataRaw) {
             table.initMassActions();

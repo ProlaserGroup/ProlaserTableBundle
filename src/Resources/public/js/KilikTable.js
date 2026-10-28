@@ -15,6 +15,8 @@ function KilikTable(id, path, options) {
     this.totalFilteredRows = 0;
     this.sortColumn = "";
     this.sortReverse = false;
+    // true only once the user clicked a column header: the default sort must not be saved as a user choice
+    this.sortChosenByUser = false;
     // delay after a key pressed before reload (ms)
     this.askForReloadDelay = 250;
     this.askForReloadTimer = null;
@@ -169,6 +171,7 @@ function KilikTable(id, path, options) {
                 table.sortColumn = sortColumn;
                 table.sortReverse = false;
             }
+            table.sortChosenByUser = true;
             $("input[name='" + table.getFormName() + "\[sortColumn\]']").val(table.sortColumn);
             $("input[name='" + table.getFormName() + "\[sortReverse\]']").val(table.sortReverse ? 1 : 0);
             table.applyColumnSort();
@@ -191,9 +194,10 @@ function KilikTable(id, path, options) {
         if (table.sortColumn === "" && table.defaultSortColumn !== "") {
             table.sortColumn = table.defaultSortColumn;
             table.sortReverse = table.defaultSortReverse;
-            $("input[name='" + table.getFormName() + "[sortColumn]']").val(table.sortColumn);
-            $("input[name='" + table.getFormName() + "[sortReverse]']").val(table.sortReverse ? 1 : 0);
         }
+        // always synced: the hidden inputs may have been restored from localStorage with a sort that was ignored
+        $("input[name='" + table.getFormName() + "[sortColumn]']").val(table.sortColumn);
+        $("input[name='" + table.getFormName() + "[sortReverse]']").val(table.sortReverse ? 1 : 0);
 
         // update sorted columns
         this.applyColumnSort();
@@ -320,8 +324,9 @@ function KilikTable(id, path, options) {
         var options = {
             "rowsPerPage": this.rowsPerPage,
             "page": this.page,
-            "sortColumn": this.sortColumn,
-            "sortReverse": this.sortReverse,
+            "sortColumn": this.sortChosenByUser ? this.sortColumn : "",
+            "sortReverse": this.sortChosenByUser ? this.sortReverse : false,
+            "sortChosenByUser": this.sortChosenByUser,
             "filters": $("form[name=" + this.getFormName() + "]").serializeArray().reduce(function (obj, item) {
                 obj[item.name] = $('[name="'+item.name+'"]').val();
                 return obj;
@@ -341,8 +346,12 @@ function KilikTable(id, path, options) {
             $("form[name='" + this.getFormName() + "']").find("checkbox").removeProp("checked");
             this.page = options.page;
             this.rowsPerPage = options.rowsPerPage;
-            this.sortColumn = options.sortColumn;
-            this.sortReverse = options.sortReverse;
+            // Sorts saved without this flag (older versions) may be a default sort saved as if chosen: ignored
+            if (options.sortChosenByUser) {
+                this.sortColumn = options.sortColumn;
+                this.sortReverse = options.sortReverse;
+                this.sortChosenByUser = true;
+            }
 
             if (!this.skipLoadFilterFromLocalStorage) {
                 $("form[name='" + this.getFormName() + "'] [name]").each(function (index, elem) {

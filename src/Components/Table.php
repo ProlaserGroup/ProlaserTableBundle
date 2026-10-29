@@ -194,15 +194,4 @@ class Table extends AbstractTable
     {
         return $this->entityLoaderCallback;
     }
-
-    public function haveTotalColumns(): bool
-    {
-        foreach ($this->getColumns() as $column) {
-            if ($column->isUseTotal()) {
-                return true;
-            }
-        }
-
-        return false;
-    }
 }

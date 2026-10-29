@@ -692,4 +692,18 @@ abstract class AbstractTable implements TableInterface
     {
         return 'kilik_' . $this->getId() . '_selected';
     }
+
+    /**
+     * Whether a column shows a total (footer of the table template): on every table type, ApiTable included.
+     */
+    public function haveTotalColumns(): bool
+    {
+        foreach ($this->getColumns() as $column) {
+            if ($column->isUseTotal()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

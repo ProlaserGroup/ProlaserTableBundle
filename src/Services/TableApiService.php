@@ -23,7 +23,7 @@ class TableApiService extends AbstractTableService
     {
         $filters = [];
 
-        $queryParams = $request->query->get($table->getFormId()) ?? $request->request->get($table->getFormId());
+        $queryParams = $request->query->all($table->getFormId()) ?: $request->request->all($table->getFormId()) ?: [];
 
         foreach ($table->getAllFilters() as $filter) {
             if (isset($queryParams[$filter->getName()])) {
@@ -49,7 +49,7 @@ class TableApiService extends AbstractTableService
     {
         $orderBy = [];
 
-        $queryParams = $request->query->get($table->getFormId()) ?? $request->request->get($table->getFormId());
+        $queryParams = $request->query->all($table->getFormId()) ?: $request->request->all($table->getFormId()) ?: [];
 
         if (isset($queryParams['sortColumn']) && $queryParams['sortColumn'] != '') {
             $column = $table->getColumnByName($queryParams['sortColumn']);
@@ -77,8 +77,9 @@ class TableApiService extends AbstractTableService
     public function getRows(TableInterface $table, Request $request, $paginate = true, $getObjects = true)
     {
         /* @var ApiTable $table */
-        $table->setRowsPerPage($request->query->get('rowsPerPage', 10) ?? $request->request->get('rowsPerPage', 10));
-        $table->setPage($request->query->get('page', 1) ?? $request->request->get('page', 1));
+        // POST first (the page sends its form by POST): a query default would hide the posted values
+        $table->setRowsPerPage($request->request->get('rowsPerPage') ?? $request->query->get('rowsPerPage') ?? 10);
+        $table->setPage($request->request->get('page') ?? $request->query->get('page') ?? 1);
 
         foreach ($request->query->all('hiddenColumns') ?: $request->request->all('hiddenColumns') as $hiddenColumnName => $notUsed) {
             $column = $table->getColumnByName($hiddenColumnName);

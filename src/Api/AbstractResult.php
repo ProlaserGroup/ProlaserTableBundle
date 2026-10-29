@@ -23,7 +23,7 @@ abstract class AbstractResult implements ResultInterface
      *
      * @var array
      */
-    protected $rows;
+    protected $rows = [];
 
     /**
      * Set Nb Total Rows.
